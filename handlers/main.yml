@@ -1,0 +1,4 @@
+---
+# handlers file for sparkfabrik.apache2
+- name: restart apache2
+  service: name=apache2 state=restarted

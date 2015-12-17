@@ -1,0 +1,36 @@
+---
+# tasks file for sparkfabrik.apache2
+- name: Install packages
+  apt: pkg={{ item }} update-cache=yes
+  with_items:
+    - apache2-mpm-worker
+    - libapache2-mod-fastcgi
+
+- name: Disable modules
+  command: a2dismod -f {{ item }} removes=/etc/apache2/mods-enabled/{{ item }}.load
+  with_items:
+    - autoindex
+  notify:
+    - restart apache2
+
+- name: Enable modules
+  apache2_module: name={{ item }} state=present
+  with_items:
+    - actions
+    - fastcgi
+    - alias
+    - rewrite
+    - ssl
+  notify:
+    - restart apache2
+
+- name: Disable default website
+  command: a2dissite {{ item  }} removes=/etc/apache2/sites-enabled/{{ item }}
+  with_items:
+    - 000-default.conf
+    - default-ssl
+  notify: 
+    - restart apache2 
+
+- name: Create SSL folder
+  file: path=/etc/apache2/httpasswd state=directory
